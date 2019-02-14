@@ -2,67 +2,67 @@
 #include <Adafruit_BME280.h>
 #include <WiFi.h>
 
+#define LED_BUILTIN 0x2
+#define BME280_ADDRESS_FAILOVER 0x76
+
 const char* ssid = "[YOUR WIFI NAME]";
 const char* password =  "[YOUR WIFI PASS]";
 const char* apiLocation = "[YOUR API HERE]";
 const int readingEverySeconds = 30 * 60; // read every 30 minutes
-
-#define BME280_ADDRESS_FAILOVER 0x76
 
 Adafruit_BME280 bme;  
 
 int iterations = 1800;
 int wiFiStatus = WL_IDLE_STATUS;
 
-float temperature = 0;
-float humidity = 0;
-float pressure = 0;
 byte mac[6];
 
+bool ledOn = false;
 bool bme280Loaded = false;
 
 void setup() {
-  Serial.begin(115200);
-
-  initWiFi();
+  pinMode(LED_BUILTIN, OUTPUT);
   
-  printWiFiStatus();
-
   initSensor();
+
+  Serial.begin(115200);
 }
 
 void loop() {
   printWiFiStatus();
 
-  if(wiFiStatus != WL_CONNECTED){
-    initWiFi();
-    delay(1000);
-    return;
-  }
-  
   if(!bme280Loaded)
   {
+    flashLed();
     Serial.println("No BME280 sensor");
-    delay(1000);
+    delay(500);
     return;
   }
-    
-  getTemperature();
-  getHumidity();
-  getPressure();
   
-  String content = "{ \"mac\": \""+String(mac[5],HEX)+":"+String(mac[4],HEX)+":"+String(mac[3],HEX)+":"+String(mac[2],HEX)+":"+String(mac[1],HEX)+":"+String(mac[0],HEX)+"\", " + 
-                  "\"temp\":"+String(temperature,1)+", " + 
-                  "\"hum\":"+String(humidity,1)+", " + 
-                  "\"pres\":"+String(pressure,1)+" }";
-  Serial.println(content);
+  if(wiFiStatus != WL_CONNECTED){
+    flashLed();
+    initWiFi();
+    delay(2500);
+    return;
+  }
 
+  digitalWrite(LED_BUILTIN, LOW);
+    
   if(iterations++ < readingEverySeconds)
   {
     delay(1000);
     return;
   }
 
+  float temp = bme.readTemperature();
+  float humi = bme.readHumidity();
+  float pres = readPressure();
+ 
+  String content = "{ \"mac\": \""+String(mac[5],HEX)+":"+String(mac[4],HEX)+":"+String(mac[3],HEX)+":"+String(mac[2],HEX)+":"+String(mac[1],HEX)+":"+String(mac[0],HEX)+"\", " + 
+                  "\"temp\":"+String(temp,1)+", " + 
+                  "\"hum\":"+String(humi,1)+", " + 
+                  "\"pres\":"+String(pres,1)+" }";
+                  
   iterations = 0;
   
   HTTPClient http;
@@ -107,6 +107,16 @@ void printWiFiStatus()
   }
 }
 
+void flashLed()
+{
+  if(ledOn){
+    digitalWrite(LED_BUILTIN, LOW);
+  } else {
+    digitalWrite(LED_BUILTIN, HIGH);
+  }
+  ledOn = !ledOn;
+}
+
 void initWiFi()
 { 
   WiFi.enableSTA(true);
@@ -126,25 +136,15 @@ void initSensor()
   if (bme280Loaded) {
     return;
   }
-  bme280Loaded - bme.begin(BME280_ADDRESS_FAILOVER);
+  bme280Loaded = bme.begin(BME280_ADDRESS_FAILOVER);
   if (!bme280Loaded) {
     Serial.println("No BME280 sensor, check wiring!");
   }
 }
 
-void getTemperature()
-{
-  temperature = bme.readTemperature();
-}
-
-void getHumidity()
-{
-  humidity = bme.readHumidity();
-}
-
-void getPressure()
+float readPressure()
 {
   float reading = bme.readPressure();
   float seaLevel = bme.seaLevelForAltitude(0.0,reading);
-  pressure = seaLevel/100.0F;
+  return seaLevel/100.0F;
 }

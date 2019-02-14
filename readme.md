@@ -23,8 +23,17 @@
 - Set your API location where it says *[YOUR API HERE]* i.e. *https://some.web/api/Weather*
 - Connect the Arduino
 - Press the "Play" button to upload
-- The bottom screen will notify you the hardware reset is complete
-- Press Tools > Serial Monitor to see the content coming back
+- Success prints in orange as:
+```
+Leaving...
+Hard resetting via RTS pin...
+```
+- Press Tools > Serial Monitor to see the content coming back (ensure in the bottom it reads as 115200 baud)
+- The board has a blue LED for status
+  - LED is off = Success
+  - Fast flash = No attached sensor 
+  - Slow flash = WiFi not found
+  - *fast flash is toggle every 500ms, slow is every 2500, success is off to conserve energy*
 
 ## Wiring
 - Wiring taken from [here](https://github.com/playelek/pinout-doit-32devkitv1)
