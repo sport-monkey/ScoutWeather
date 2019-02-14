@@ -23,8 +23,8 @@
 - Set your API location where it says *[YOUR API HERE]* i.e. *https://some.web/api/Weather*
 - Hold the button marked __BOOT__ by the USB port
 - Connect the Arduino
-- Release the __BOOT__ button
-- Press the "Play" button to upload
+- Press the "Play" button to upload (or `Ctrl+U`)
+- Wait for `Connecting....`, then release the __BOOT__ button
 - Success prints in orange as:
 ```
 Leaving...
