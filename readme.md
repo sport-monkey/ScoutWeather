@@ -21,7 +21,9 @@
 - Set your WiFi ssid where it says *[YOUR WIFI NAME]* i.e. *BT Home Hub5 AAAA*
 - Set your WiFi password where it says *[YOUR WIFI PASS]* i.e. *aaa00aa000*
 - Set your API location where it says *[YOUR API HERE]* i.e. *https://some.web/api/Weather*
+- Hold the button marked __BOOT__ by the USB port
 - Connect the Arduino
+- Release the __BOOT__ button
 - Press the "Play" button to upload
 - Success prints in orange as:
 ```
